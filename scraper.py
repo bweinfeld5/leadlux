@@ -6,18 +6,20 @@ def scrape_data(url):
     response = requests.get(url)
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
-        titles = soup.find_all('h2', class_='title')
+        books = soup.find_all('article', class_='product_pod')
 
-        with open('scraped_data.csv', mode='w', newline='') as file:
+        with open('scraped_books.csv', mode='w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(['Title'])
+            writer.writerow(['Title', 'Price'])
 
-            for title in titles:
-                writer.writerow([title.get_text()])
+            for book in books:
+                title = book.h3.a['title']
+                price = book.find('p', class_='price_color').text
+                writer.writerow([title, price])
         
-        print("Data saved to scraped_data.csv")
+        print("Data saved to scraped_books.csv")
     else:
         print(f"Failed to retrieve the page. Status code: {response.status_code}")
 
-url = 'https://example.com/articles'  # Replace with the actual URL
+url = 'http://books.toscrape.com'
 scrape_data(url)
